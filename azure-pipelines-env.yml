@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+- Dev
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: 'azure-connection'
+    subscriptionId: '0b826ba5-a9d0-4881-b7aa-93feeb7fe76b'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: 'devrsggrp'
+    location: 'West Europe'
+    templateLocation: 'Linked artifact'
+    deploymentMode: 'Incremental'
+    csmFile: '$(Build.ArtifactStagingDirectory)/complete-build.json'
+    csmParametersFile: '$(Build.ArtifactStagingDirectory)/complete-build.parameters.json'

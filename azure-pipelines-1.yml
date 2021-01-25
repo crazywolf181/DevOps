@@ -1,0 +1,25 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+- master
+- Dev
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
+    - template: templates/azure-pipelines.yml
+      parameters:
+         resourcegroup: 'rg-prod'
+         parameter_file: '$(Build.ArtifactStagingDirectory)/blob.parameters-prod.json'
+
+  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/Dev/') }}:
+    - template: templates/azure-pipelines.yml
+      parameters:
+         resourcegroup: 'rg-dev'
+         parameter_file: '$(Build.ArtifactStagingDirectory)/blob.parameters-dev.json'
